@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    color: #333;
 }
 
 header {
@@ -41,7 +42,7 @@ nav ul li a {
     padding: 50px 20px;
 }
 
-.election-info {
+.election-info, .news, .contact {
     padding: 20px;
     background-color: white;
     margin: 20px;

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>नेपाल निर्वाचन आयोग</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Preeti&display=swap">
 </head>
 <body>
     <header>
@@ -22,14 +24,33 @@
     </header>
 
     <main>
+        <!-- Hero Section -->
         <section class="hero">
             <h1>नेपाल निर्वाचन आयोग</h1>
             <p>स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी</p>
         </section>
 
+        <!-- Election Information -->
         <section class="election-info">
             <h2>निर्वाचन जानकारी</h2>
             <div id="electionData"></div>
+        </section>
+
+        <!-- News Section -->
+        <section class="news">
+            <h2>ताजा समाचार</h2>
+            <div id="newsData"></div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact">
+            <h2>सम्पर्क</h2>
+            <form id="contactForm">
+                <input type="text" id="name" placeholder="नाम" required>
+                <input type="email" id="email" placeholder="इमेल" required>
+                <textarea id="message" placeholder="सन्देश" required></textarea>
+                <button type="submit">पठाउनुहोस्</button>
+            </form>
         </section>
     </main>
 
@@ -37,6 +58,7 @@
         <p>&copy; 2025 नेपाल निर्वाचन आयोग</p>
     </footer>
 
-    <script src="js/scripts.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/api.js"></script>
 </body>
 </html>
