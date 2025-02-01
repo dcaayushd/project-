@@ -1,3 +1,4 @@
+/* 
 body {
     font-family: 'Preeti', sans-serif;
     margin: 0;
@@ -43,6 +44,77 @@ nav ul li a {
 }
 
 .election-info, .news, .contact {
+    padding: 20px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+footer {
+    background-color: #003366;
+    color: white;
+    text-align: center;
+    padding: 10px 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+} */
+
+/* General Styles */
+body {
+    font-family: 'Preeti', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #003366;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo img {
+    height: 50px;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-left: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.hero {
+    background-color: #004080;
+    color: white;
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.cta-buttons button {
+    background-color: #ffcc00;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.candidates, .voting-info, .results, .news, .contact {
     padding: 20px;
     background-color: white;
     margin: 20px;
