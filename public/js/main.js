@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchResults();
     fetchNews();
     setupContactForm();
+    updateLanguage();
 });
 
 function fetchCandidates() {
@@ -68,5 +69,48 @@ function setupContactForm() {
             .then(response => response.json())
             .then(data => alert('सन्देश पठाइयो!'))
             .catch(error => console.error('Error submitting form:', error));
+    });
+}
+
+function changeLanguage(lang) {
+    localStorage.setItem('language', lang);
+    window.location.reload();
+}
+
+function updateLanguage() {
+    const language = localStorage.getItem('language') || 'np';
+    const translations = {
+        np: {
+            welcome: "स्वागतम्",
+            register: "दर्ता गर्नुहोस्",
+            votingInfo: "मतदान जानकारी",
+            candidates: "उम्मेदवारहरू",
+            results: "नतिजा",
+            news: "समाचार",
+            contact: "सम्पर्क",
+            ElectionNepal: "नेपाल निर्वाचन आयोग",
+            ElectionBio: "स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी",
+            home: "गृहपृष्ठ",
+            HowToVote: "मतदान कसरी गर्ने?",
+        },
+        en: {
+            welcome: "Welcome",
+            register: "Register",
+            votingInfo: "Voting Information",
+            candidates: "Candidates",
+            results: "Results",
+            news: "News",
+            contact: "Contact",
+            ElectionNepal: "Nepal Election Commission",
+            ElectionBio:"Guarantee of free, fair and transparent elections",
+            home: "Home",
+            HowToVote: "How to vote?"
+        }
+    };
+
+    // Update all translatable elements
+    document.querySelectorAll('[data-translate]').forEach(element => {
+        const key = element.getAttribute('data-translate');
+        element.innerText = translations[language][key];
     });
 }
