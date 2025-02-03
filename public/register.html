@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="np">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मतदाता दर्ता</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Preeti&display=swap">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/logo.png" alt="नेपाल निर्वाचन आयोग">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">गृहपृष्ठ</a></li>
+                <li><a href="login.html">लगइन</a></li>
+            </ul>
+        </nav>
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <button onclick="changeLanguage('np')">नेपाली</button>
+            <button onclick="changeLanguage('en')">English</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Voter Registration Form -->
+        <section class="voter-registration">
+            <h2>मतदाता दर्ता</h2>
+            <form id="voterRegistrationForm">
+                <input type="text" id="fullName" placeholder="पुरा नाम" required>
+                <input type="text" id="address" placeholder="ठेगाना" required>
+                <input type="date" id="dob" placeholder="जन्म मिति" required>
+                <input type="text" id="voterId" placeholder="मतदाता परिचयपत्र नम्बर" required>
+                <input type="email" id="email" placeholder="इमेल" required>
+                <input type="password" id="password" placeholder="पासवर्ड" required>
+                <button type="submit">दर्ता गर्नुहोस्</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p data-translate="Copyright">&copy; 2025 नेपाल निर्वाचन आयोग</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/register.js"></script>
+</body>
+</html>

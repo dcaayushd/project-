@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="np">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-translate="ElectionNepal">नेपाल निर्वाचन आयोग</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Preeti&display=swap">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Preeti&display=swap" />
 </head>
+
 <body>
     <header>
         <div class="logo">
-            <img src="images/logo.png" alt="नेपाल निर्वाचन आयोग">
+            <img src="images/logo.png" alt="नेपाल निर्वाचन आयोग" />
         </div>
         <nav>
             <ul>
                 <li><a data-translate="home" href="#">गृहपृष्ठ</a></li>
-                <li><a data-translate="candidates" href="#candidates">उम्मेदवार</a></li>
+                <li>
+                    <a data-translate="candidates" href="#candidates">उम्मेदवार</a>
+                </li>
                 <li><a data-translate="votingInfo" href="#voting">मतदान</a></li>
                 <li><a data-translate="results" href="#results">नतिजा</a></li>
                 <li><a data-translate="news" href="#news">समाचार</a></li>
@@ -34,16 +38,22 @@
         <!-- Hero Section -->
         <section class="hero">
             <h1 data-translate="ElectionNepal">नेपाल निर्वाचन आयोग</h1>
-            <p data-translate="ElectionBio">स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी</p>
+            <p data-translate="ElectionBio">
+                स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी
+            </p>
             <div class="cta-buttons">
-                <button data-translate="register"> onclick="location.href='#register'">मतदाता दर्ता</button>
-                <button data-translate="HowToVote" onclick="location.href='#voting'">मतदान कसरी गर्ने?</button>
+                <button data-translate="register" onclick="location.href='register.html'">
+                    मतदाता दर्ता
+                </button>
+                <button data-translate="HowToVote" onclick="location.href='howToVote.html'">
+                    मतदान कसरी गर्ने?
+                </button>
             </div>
         </section>
 
         <!-- Candidate Profiles -->
         <section id="candidates" class="candidates">
-            <h2 data-translate="candidates">उम्मेदवारहरू</h2>
+            <h2 ç>उम्मेदवारहरू</h2>
             <div id="candidateData"></div>
         </section>
 
@@ -62,15 +72,17 @@
         <!-- News Section -->
         <section id="news" class="news">
             <h2 data-translate="news">समाचार</h2>
-            <div id="newsData"></div>
+            <div id="newsData">
+                <p>Loading news...</p>
+            </div>
         </section>
 
         <!-- Contact Section -->
         <section id="contact" class="contact">
             <h2 data-translate="contact">सम्पर्क</h2>
             <form id="contactForm">
-                <input type="text" id="name" placeholder="नाम" required>
-                <input type="email" id="email" placeholder="इमेल" required>
+                <input type="text" id="name" placeholder="नाम" required />
+                <input type="email" id="email" placeholder="इमेल" required />
                 <textarea id="message" placeholder="सन्देश" required></textarea>
                 <button type="submit">पठाउनुहोस्</button>
             </form>
@@ -78,11 +90,11 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 नेपाल निर्वाचन आयोग</p>
+        <p data-translate="Copyright">&copy; 2025 नेपाल निर्वाचन आयोग</p>
     </footer>
 
     <script src="js/main.js"></script>
-    <script src="js/api.js"></script>
     <script src="js/map.js"></script>
 </body>
+
 </html>
