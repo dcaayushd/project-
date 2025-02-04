@@ -20,16 +20,13 @@ exports.register = async (req, res) => {
         // Generate a unique 8-digit voter ID
         const voterId = Math.floor(10000000 + Math.random() * 90000000).toString();
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         // Create a new user
         const user = new User({
             fullName,
             address,
-            dob: new Date(dob), // Ensure dob is a valid date
+            dob: new Date(dob),
             citizenshipNumber,
-            password: hashedPassword,
+            password,
             voterId,
         });
 
@@ -48,15 +45,37 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { loginId, password } = req.body;
-        const user = await User.findOne({ $or: [{ voterId: loginId }, { citizenshipNumber: loginId }] });
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        // Find user by voterId or citizenshipNumber
+        const user = await User.findOne({ 
+            $or: [
+                { voterId: loginId }, 
+                { citizenshipNumber: loginId } 
+            ] 
+        });
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(401).json({ message: 'Invalid password' });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-        res.status(200).json({ message: 'Login successful!', user });
+        // Compare passwords using the method from the user model
+        const isPasswordValid = await user.comparePassword(password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+
+        res.status(200).json({ 
+            message: 'Login successful!', 
+            user: { 
+                _id: user._id, 
+                fullName: user.fullName, 
+                voterId: user.voterId 
+            } 
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error logging in', error });
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 };
 
@@ -64,15 +83,24 @@ exports.login = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { citizenshipNumber, dob, newPassword } = req.body;
-        const user = await User.findOne({ citizenshipNumber, dob });
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        
+        // Find user by citizenship number and date of birth
+        const user = await User.findOne({ 
+            citizenshipNumber, 
+            dob: { $gte: new Date(dob), $lt: new Date(dob).setDate(new Date(dob).getDate() + 1) }
+        });
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update password
+        user.password = newPassword;
         await user.save();
 
         res.status(200).json({ message: 'Password reset successfully!' });
     } catch (error) {
-        res.status(500).json({ message: 'Error resetting password', error });
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: 'Error resetting password', error: error.message });
     }
 };
