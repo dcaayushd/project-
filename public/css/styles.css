@@ -181,3 +181,80 @@ footer {
 .how-to-vote li:last-child {
     margin-bottom: 2rem;
 }
+
+.candidate-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.candidate-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.party {
+    color: #003366;
+    font-weight: bold;
+}
+
+.bio {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.vote-button {
+    background-color: #003366;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.vote-button:hover {
+    background-color: #004080;
+}
+
+.reset-password {
+    padding: 20px;
+    background-color: white;
+    margin: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.reset-password h2 {
+    color: #003366;
+    margin-bottom: 20px;
+}
+
+.reset-password input {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.reset-password button {
+    background-color: #003366;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.reset-password button:hover {
+    background-color: #004080;
+}

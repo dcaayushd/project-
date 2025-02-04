@@ -31,10 +31,11 @@
         <section class="login">
             <h2 data-translate="login">लगइन</h2>
             <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="इमेल" required>
+                <input type="text" id="loginId" placeholder="मतदाता परिचयपत्र नम्बर वा नागरिकता नम्बर" required>
                 <input type="password" id="loginPassword" placeholder="पासवर्ड" required>
-                <button data-translate="loginNow" type="submit">लगइन गर्नुहोस्</button>
+                <button type="submit" data-translate="loginNow">लगइन गर्नुहोस्</button>
             </form>
+            <p><a href="resetPassword.html" data-translate="forgotPassword">पासवर्ड बिर्सनु भयो?</a></p>
         </section>
     </main>
 
@@ -42,7 +43,7 @@
         <p data-translate="Copyright">&copy; 2025 नेपाल निर्वाचन आयोग</p>
     </footer>
 
-    <script src="js/login.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/login.js"></script>
 </body>
 </html>
