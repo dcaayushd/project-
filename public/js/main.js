@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchNews();
     setupContactForm();
     updateLanguage();
+    fetchPollingCenters();
 });
 
 function fetchCandidates() {
@@ -66,35 +67,33 @@ function fetchResults() {
 }
 
 // Fetch election news
-function fetchNews() {
-    fetch('/api/news')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('News Data:', data); // Log the fetched news data
-            const newsData = document.getElementById('newsData');
-            if (data.length === 0) {
-                newsData.innerHTML = `<p>No election news available at the moment.</p>`;
-            } else {
-                newsData.innerHTML = data.map(article => `
-                    <div class="news-item">
-                        <h3>${article.title}</h3>
-                        <p>${article.description}</p>
-                        <a href="${article.link}" target="_blank">Read more</a>
-                    </div>
-                `).join('');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching news:', error); // Log the error
-            const newsData = document.getElementById('newsData');
-            newsData.innerHTML = `<p>Failed to load news. Please try again later.</p>`;
-        });
-}
+fetch('/api/news')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('News Data:', data); // Log the fetched news data
+        const newsData = document.getElementById('newsData');
+        if (!data.news || data.news.length === 0) {
+            newsData.innerHTML = `<p>No news available at the moment.</p>`;
+        } else {
+            newsData.innerHTML = data.news.map(article => `
+                <div class="news-item">
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
+                    <a href="${article.link}" target="_blank">Read more</a>
+                </div>
+            `).join('');
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching news:', error); // Log the error
+        const newsData = document.getElementById('newsData');
+        newsData.innerHTML = `<p>Failed to load news. Please try again later.</p>`;
+    });
 
 function setupContactForm() {
     const form = document.getElementById('contactForm');
@@ -112,6 +111,46 @@ function setupContactForm() {
     });
 }
 
+function fetchPollingCenters() {
+    fetch('/api/polling-stations')
+        .then(response => response.json())
+        .then(data => {
+            const pollingData = document.getElementById('pollingData');
+            if (!data || data.length === 0) {
+                pollingData.innerHTML = `<p data-translate="noPollingCenters">कुनै मतदान केन्द्र उपलब्ध छैन।</p>`;
+            } else {
+                pollingData.innerHTML = `
+                    <div class="polling-list">
+                        ${data.map(station => `
+                            <div class="polling-card">
+                                <h3>${station.name}</h3>
+                                <div class="polling-details">
+                                    <p>
+                                        <span class="detail-label" data-translate="address">ठेगाना:</span>
+                                        <span class="detail-value">${station.address}</span>
+                                    </p>
+                                    <p>
+                                        <span class="detail-label" data-translate="district">जिल्ला:</span>
+                                        <span class="detail-value">${station.district}</span>
+                                    </p>
+                                    <p>
+                                        <span class="detail-label" data-translate="openingHours">खुल्ने समय:</span>
+                                        <span class="detail-value">${station.openingHours}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            updateLanguage(); // Update translations after adding new content
+        })
+        .catch(error => {
+            console.error('Error fetching polling centers:', error);
+            const pollingData = document.getElementById('pollingData');
+            pollingData.innerHTML = `<p data-translate="errorLoadingCenters">मतदान केन्द्रहरू लोड गर्न समस्या भयो।</p>`;
+        });
+}
 function changeLanguage(lang) {
     localStorage.setItem('language', lang);
     window.location.reload(); // Reload the page to apply the new language
@@ -162,6 +201,14 @@ function updateLanguage() {
             Step4: "मतदान प्रमाणपत्र प्राप्त गर्नुहोस्: मतदान पछि मतदान प्रमाणपत्र प्राप्त गर्नुहोस्।",
             VotingOnline: "अनलाइन मतदान गर्ने तरिका",
 
+            //polling stations
+            pollingCenters: "मतदान केन्द्रहरू",
+            address: "ठेगाना",
+            district: "जिल्ला",
+            openingHours: "खुल्ने समय",
+            showOnMap: "नक्सामा हेर्नुहोस्",
+            noPollingCenters: "कुनै मतदान केन्द्र उपलब्ध छैन।",
+            errorLoadingCenters: "मतदान केन्द्रहरू लोड गर्न समस्या भयो।"
         },
         en: {
             home: "Home",
@@ -203,6 +250,15 @@ function updateLanguage() {
             Step3: "Cast Your Vote: Visit the polling center and cast your vote.",
             Step4: "Receive Voting Certificate: Obtain your voting certificate after voting.",
             VotingOnline: "Voting Online",
+
+            //polling centers
+            pollingCenters: "Polling Centers",
+            address: "Address",
+            district: "District",
+            openingHours: "Opening Hours",
+            showOnMap: "Show on Map",
+            noPollingCenters: "No polling centers available.",
+            errorLoadingCenters: "Error loading polling centers."
         }
     };
     
