@@ -317,3 +317,68 @@ footer {
 .map-button:hover {
     background-color: #004080;
 }
+
+.form-tabs {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.tab-button.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.form-section {
+    transition: display 0.3s ease;
+}
+
+
+.voter-id-result {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #003366;
+    text-align: center;
+}
+
+.voter-id-result p {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.voter-id-result strong {
+    color: #003366;
+    font-size: 1.2em;
+    padding: 5px 10px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+}
+
+.copy-button {
+    background-color: #003366;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.copy-button:hover {
+    background-color: #004080;
+}
+
+.language-switcher button.active {
+    background-color: #007bff;
+    color: white;
+}

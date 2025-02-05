@@ -45,13 +45,13 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { loginId, password } = req.body;
-        
+
         // Find user by voterId or citizenshipNumber
-        const user = await User.findOne({ 
+        const user = await User.findOne({
             $or: [
-                { voterId: loginId }, 
-                { citizenshipNumber: loginId } 
-            ] 
+                { voterId: loginId },
+                { citizenshipNumber: loginId }
+            ]
         });
 
         if (!user) {
@@ -60,18 +60,18 @@ exports.login = async (req, res) => {
 
         // Compare passwords using the method from the user model
         const isPasswordValid = await user.comparePassword(password);
-        
+
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
-        res.status(200).json({ 
-            message: 'Login successful!', 
-            user: { 
-                _id: user._id, 
-                fullName: user.fullName, 
-                voterId: user.voterId 
-            } 
+        res.status(200).json({
+            message: 'Login successful!',
+            user: {
+                _id: user._id,
+                fullName: user.fullName,
+                voterId: user.voterId
+            }
         });
     } catch (error) {
         console.error('Login error:', error);
@@ -79,22 +79,41 @@ exports.login = async (req, res) => {
     }
 };
 
-// Reset password
+// Resets password
 exports.resetPassword = async (req, res) => {
     try {
-        const { citizenshipNumber, dob, newPassword } = req.body;
-        
-        // Find user by citizenship number and date of birth
-        const user = await User.findOne({ 
-            citizenshipNumber, 
-            dob: { $gte: new Date(dob), $lt: new Date(dob).setDate(new Date(dob).getDate() + 1) }
+        const { identifier, dob, newPassword } = req.body;
+
+        if (!identifier || !dob || !newPassword) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Convert the input dob to date object and set time to midnight
+        const inputDate = new Date(dob);
+        inputDate.setHours(0, 0, 0, 0);
+
+        // Find user by either citizenship number or voter ID
+        const user = await User.findOne({
+            $or: [
+                { citizenshipNumber: identifier.trim() },
+                { voterId: identifier.trim() }
+            ]
         });
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found with provided details' });
         }
 
-        // Update password
+        // Convert stored dob to midnight for comparison
+        const storedDate = new Date(user.dob);
+        storedDate.setHours(0, 0, 0, 0);
+
+        // Compare dates
+        if (inputDate.getTime() !== storedDate.getTime()) {
+            return res.status(400).json({ message: 'Date of birth does not match our records' });
+        }
+
+        // Set the new password directly - it will be hashed by the pre-save middleware
         user.password = newPassword;
         await user.save();
 
@@ -102,5 +121,39 @@ exports.resetPassword = async (req, res) => {
     } catch (error) {
         console.error('Reset password error:', error);
         res.status(500).json({ message: 'Error resetting password', error: error.message });
+    }
+};
+// Retrieve Voter ID
+exports.retrieveVoterId = async (req, res) => {
+    try {
+        const { citizenshipNumber, dob } = req.body;
+
+        // Convert the input dob to date object and set time to midnight
+        const inputDate = new Date(dob);
+        inputDate.setHours(0, 0, 0, 0);
+
+        // Find user by citizenship number
+        const user = await User.findOne({ citizenshipNumber });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found with this citizenship number' });
+        }
+
+        // Convert stored dob to midnight for comparison
+        const storedDate = new Date(user.dob);
+        storedDate.setHours(0, 0, 0, 0);
+
+        // Compare dates
+        if (inputDate.getTime() !== storedDate.getTime()) {
+            return res.status(400).json({ message: 'Date of birth does not match our records' });
+        }
+
+        res.status(200).json({
+            message: 'Voter ID retrieved successfully',
+            voterId: user.voterId
+        });
+    } catch (error) {
+        console.error('Voter ID retrieval error:', error);
+        res.status(500).json({ message: 'Error retrieving Voter ID', error: error.message });
     }
 };

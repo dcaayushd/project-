@@ -9,4 +9,10 @@ router.post('/register', userController.register);
 // Login a user
 router.post('/login', userController.login);
 
+// Reset password route
+router.post('/resetPassword', userController.resetPassword);
+
+// Retrieve voterID route
+router.post('/retrieveVoterId', userController.retrieveVoterId);
+
 module.exports = router;

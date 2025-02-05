@@ -113,37 +113,63 @@ function setupContactForm() {
 
 function fetchPollingCenters() {
     fetch('/api/polling-stations')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const pollingData = document.getElementById('pollingData');
-            if (!data || data.length === 0) {
+            
+            // Clear the "Loading" message
+            pollingData.innerHTML = '';
+            
+            // Check if data exists and is an array
+            if (!data || !Array.isArray(data) || data.length === 0) {
                 pollingData.innerHTML = `<p data-translate="noPollingCenters">कुनै मतदान केन्द्र उपलब्ध छैन।</p>`;
-            } else {
-                pollingData.innerHTML = `
-                    <div class="polling-list">
-                        ${data.map(station => `
-                            <div class="polling-card">
-                                <h3>${station.name}</h3>
-                                <div class="polling-details">
-                                    <p>
-                                        <span class="detail-label" data-translate="address">ठेगाना:</span>
-                                        <span class="detail-value">${station.address}</span>
-                                    </p>
-                                    <p>
-                                        <span class="detail-label" data-translate="district">जिल्ला:</span>
-                                        <span class="detail-value">${station.district}</span>
-                                    </p>
-                                    <p>
-                                        <span class="detail-label" data-translate="openingHours">खुल्ने समय:</span>
-                                        <span class="detail-value">${station.openingHours}</span>
-                                    </p>
-                                </div>
-                            </div>
-                        `).join('')}
+                return;
+            }
+            
+            // Create polling centers list
+            const pollingList = document.createElement('div');
+            pollingList.className = 'polling-list';
+            
+            // Iterate through polling stations and create cards
+            data.forEach(station => {
+                const stationCard = document.createElement('div');
+                stationCard.className = 'polling-card';
+                
+                stationCard.innerHTML = `
+                    <h3>${station.name}</h3>
+                    <div class="polling-details">
+                        <p>
+                            <span class="detail-label" data-translate="address">ठेगाना:</span>
+                            <span class="detail-value">${station.address}</span>
+                        </p>
+                        <p>
+                            <span class="detail-label" data-translate="district">जिल्ला:</span>
+                            <span class="detail-value">${station.district}</span>
+                        </p>
+                        <p>
+                            <span class="detail-label" data-translate="openingHours">खुल्ने समय:</span>
+                            <span class="detail-value">${station.openingHours}</span>
+                        </p>
+                        <p>
+                            <span class="detail-label">अक्षांश/देशान्तर:</span>
+                            <span class="detail-value">${station.latitude}, ${station.longitude}</span>
+                        </p>
                     </div>
                 `;
-            }
-            updateLanguage(); // Update translations after adding new content
+                
+                pollingList.appendChild(stationCard);
+            });
+            
+            // Add the polling list to the polling data container
+            pollingData.appendChild(pollingList);
+            
+            // Update language translations
+            updateLanguage();
         })
         .catch(error => {
             console.error('Error fetching polling centers:', error);
@@ -191,6 +217,13 @@ function updateLanguage() {
             passwordPlaceholder: " पासवर्ड",
             dobPlaceholder: "जन्म मिति",
             loginPasswordPlaceholder: "पासवर्ड",
+            identifierPlaceholder: "नागरिकता नम्बर वा मतदाता परिचयपत्र नम्बर",
+            retrieveVoterId: "मतदाता परिचयपत्र खोज्नुहोस्",
+            voterIdResult: "तपाईंको मतदाता परिचयपत्र:",
+            copyToClipboard: "क्लिपबोर्डमा कपी गर्नुहोस्",
+            copied: "कपी गरियो!",
+            pleaseWait: "कृपया पर्खनुहोस्...",
+            
             
             //  Translations for howToVote.html
             VotingInstructions: "मतदान प्रक्रिया नेपालमा सजिलो र पारदर्शी छ। तल दिइएका चरणहरू अनुसरण गर्नुहोस्:",
@@ -242,6 +275,13 @@ function updateLanguage() {
             passwordPlaceholder: "Password",
             dobPlaceholder: "DOB",
             loginPasswordPlaceholder: "Password",
+            identifierPlaceholder: "Citizenship Number or Voter ID",
+            retrieveVoterId: "Retrieve Voter ID",
+            voterIdResult: "Your Voter ID:",
+            copyToClipboard: "Copy to Clipboard",
+            copied: "Copied to clipboard!",
+            pleaseWait: "Please wait...",
+
             // Translations for howToVote.html
             VotingInstructions: "The voting process in Nepal is simple and transparent. Follow the steps below:",
             VotingInPerson: "Voting in Person at Polling Center",
@@ -282,7 +322,8 @@ function updateLanguage() {
         address: translations[language].addressPlaceholder,
         password: translations[language].passwordPlaceholder,
         dob: translations[language].dobPlaceholder,
-        loginPassword: translations[language].loginPasswordPlaceholder
+        loginPassword: translations[language].loginPasswordPlaceholder,
+        identifier: translations[language].identifierPlaceholder,
 
     };
 
