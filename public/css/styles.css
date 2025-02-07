@@ -47,28 +47,7 @@ nav ul li a {
 .language-switcher {
     display: flex;
     gap: 10px;
-    /* margin-left: 10px; */
 }
-
-/* .language-switcher button {
-    background-color: #fff;
-    color: #003366;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.language-switcher button:hover {
-    background-color: #004080;
-    color: white;
-}
-
-.language-switcher button.active {
-    background-color: #007bff;
-    color: white;
-} */
 
 
 .language-switcher button {
@@ -96,14 +75,14 @@ nav ul li a {
 #loggedInUser {
     position: relative;
     cursor: pointer;
-    margin-right: 10px;
+    /* margin-left: 10px; */
 }
 
 #loggedInUser #userFullName {
     font-weight: bold;
     color: #007bff;
     text-decoration: underline;
-    /* margin-right: 10px; */
+    margin-left: 15px;
 }
 
 .user-options {
@@ -179,9 +158,10 @@ footer {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px 0;
+    /* margin: 20px 0; */
     text-align: center;
-    width: 30%;
+    /* width: 30%; */
+    width: calc(33.33% - 40px);
     display: inline-block;
     box-sizing: border-box;
 }

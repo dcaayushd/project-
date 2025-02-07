@@ -22,27 +22,20 @@ document.addEventListener('DOMContentLoaded', function () {
             loggedInUser.style.display = 'block';
             userFullNameElement.innerText = userFullName;
 
-            // // Toggle user options on clicking the user's name
-            // userFullNameElement.addEventListener('click', function () {
-            //     const userOptions = document.querySelector('.user-options');
-            //     userOptions.style.display = userOptions.style.display === 'block' ? 'none' : 'block';
-            // });
             // Toggle user options visibility when the user's name is clicked
             document.getElementById('userFullName').addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent event from propagating to document
                 const userOptions = document.querySelector('.user-options');
-
                 userOptions.style.display = userOptions.style.display === 'block' ? 'none' : 'block';
             });
 
-            // Hide the dropdown if clicking outside of it
+            // Hide dropdown when clicking anywhere else on the page
             document.addEventListener('click', function () {
-                event.stopPropagation(); // Prevent the click from propagating to the document
-
+                const userOptions = document.querySelector('.user-options');
                 if (userOptions.style.display === 'block') {
                     userOptions.style.display = 'none';
                 }
             });
-
             // Logout functionality
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
@@ -302,16 +295,26 @@ function fetchPollingCenters() {
 }
 function changeLanguage(lang) {
     const buttons = document.querySelectorAll('.language-switcher button');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    // Add active class to the clicked button
-    event.target.classList.add('active');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(lang)) {
+            btn.classList.add('active');
+        }
+    });
 
     localStorage.setItem('language', lang);
     window.location.reload(); // Reload the page to apply the new language
 }
 
-function updateLanguage() {
+function updateLanguage() {    
     const language = localStorage.getItem('language') || 'np';
+    const buttons = document.querySelectorAll('.language-switcher button');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(language)) {
+            btn.classList.add('active');
+        }
+    });
     const translations = {
         np: {
             home: "गृहपृष्ठ",
