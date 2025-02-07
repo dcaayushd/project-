@@ -1,16 +1,13 @@
+// candidateRoutes.js
 const express = require('express');
-const Candidate = require('../models/candidate');
+const candidateController = require('../controllers/candidateController');
 
 const router = express.Router();
 
 // Get all candidates
-router.get('/', async (req, res) => {
-    try {
-        const candidates = await Candidate.find();
-        res.json(candidates);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get('/', candidateController.getAllCandidates);
+
+// Get top 3 candidates
+router.get('/top', candidateController.getTopCandidates);
 
 module.exports = router;

@@ -17,16 +17,31 @@
             <ul>
                 <li><a data-translate="home" href="index.html">गृहपृष्ठ</a></li>
                 <li><a data-translate="candidates" href="#candidates">उम्मेदवार</a></li>
-                <li><a data-translate="votingInfo" href="#voting">मतदान</a></li>
+                <li><a data-translate="pollingCenters" href="#polling">मतदान केन्द्रहरू</a></li>
                 <li><a data-translate="results" href="#results">नतिजा</a></li>
+                <li><a data-translate="upcomingElections" href="index.html#upcomingElections">आगामी निर्वाचनहरू</a></li>
                 <li><a data-translate="news" href="#news">समाचार</a></li>
                 <li><a data-translate="contact" href="#contact">सम्पर्क</a></li>
             </ul>
         </nav>
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-            <button onclick="changeLanguage('np')">नेपाली</button>
-            <button onclick="changeLanguage('en')">English</button>
+        <div class="user-header-section">
+            
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <button onclick="changeLanguage('np')">नेपाली</button>
+                <button onclick="changeLanguage('en')">English</button>
+            </div>
+
+            <!-- Logged-in User Section -->
+            <div id="loggedInUser" style="display: none;">
+                <span id="userFullName">User Full Name</span>
+                <div class="user-options">
+                    <ul>
+                        <li><a href="#" id="logoutButton">Logout</a></li>
+                        <li><a href="resetPassword.html" id="resetPasswordButton">Reset Password</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
 

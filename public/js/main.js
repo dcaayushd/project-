@@ -57,8 +57,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
+      // Dynamic results fetching based on current page
+      if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+        fetchResults();
+    } else if (window.location.pathname.includes('results.html')) {
+        fetchAllCandidateResults();
+    }
+
     fetchCandidates();
-    fetchResults();
     fetchPollingCenters();
     fetchUpcomingElections();
     fetchNews();
@@ -98,6 +105,91 @@ function handleVote(candidateId) {
     }
 }
 
+
+//fetchResults
+function fetchResults() {
+    console.log('Attempting to fetch top results');
+    fetch('/api/candidates/top')
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received results data:', data);
+            const resultsData = document.getElementById('resultsData');
+            
+            if (!data || data.length === 0) {
+                resultsData.innerHTML = `<p>No results available at the moment.</p>`;
+                return;
+            }
+
+            resultsData.innerHTML = data.map(candidate => `
+                <div class="candidate-card" onclick="location.href='results.html'">
+                    <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                    <h3>${candidate.name}</h3>
+                    <p class="party">${candidate.party}</p>
+                    <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error fetching results:', error);
+            const resultsData = document.getElementById('resultsData');
+            resultsData.innerHTML = `<p>Failed to load results. Error: ${error.message}</p>`;
+        });
+}
+
+function fetchAllCandidateResults() {
+    console.log('Attempting to fetch all candidates');
+    fetch('/api/candidates')
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received candidates data:', data);
+            const resultsData = document.getElementById('resultsData');
+            
+            if (!data || data.length === 0) {
+                resultsData.innerHTML = `<p>No results available at the moment.</p>`;
+                return;
+            }
+
+            // Sort candidates by votes in descending order
+            const sortedCandidates = data.sort((a, b) => b.votes - a.votes);
+
+            resultsData.innerHTML = sortedCandidates.map(candidate => `
+                <div class="candidate-card full-results">
+                    <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                    <h3>${candidate.name}</h3>
+                    <p class="party">${candidate.party}</p>
+                    <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error fetching all candidate results:', error);
+            const resultsData = document.getElementById('resultsData');
+            resultsData.innerHTML = `<p>Failed to load results. Error: ${error.message}</p>`;
+        });
+}
+
+// Modify the existing DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Current pathname:', window.location.pathname);
+    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+        fetchResults();
+    } else if (window.location.pathname.includes('results.html')) {
+        fetchAllCandidateResults();
+    }
+});
+
 function fetchCandidates() {
     fetch('/api/candidates')
         .then(response => response.json())
@@ -116,106 +208,6 @@ function fetchCandidates() {
         .catch(error => console.error('Error fetching candidates:', error));
 }
 
-// function fetchResults() {
-//     fetch('/api/results')
-//         .then(response => response.json())
-//         .then(data => {
-//             const resultsData = document.getElementById('resultsData');
-//             if (data.length > 0) {
-//                 // Sort candidates by votes in descending order
-//                 const sortedCandidates = data.sort((a, b) => b.votes - a.votes);
-//                 // Get the top 3 candidates
-//                 const topCandidates = sortedCandidates.slice(0, 3);
-
-//                 resultsData.innerHTML = topCandidates.map(candidate => `
-//                     <div class="candidate-card">
-//                         <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-//                         <h3>${candidate.name}</h3>
-//                         <p class="party">${candidate.party}</p>
-//                         <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
-//                     </div>
-//                 `).join('');
-//             } else {
-//                 resultsData.innerHTML = `<p>No results available at the moment.</p>`;
-//             }
-//         })
-//         .catch(error => console.error('Error fetching results:', error));
-// }
-
-
-// function fetchResults() {
-//     fetch('/api/results/top')
-//         .then(response => response.json())
-//         .then(data => {
-//             const resultsData = document.getElementById('resultsData');
-//             if (data.length > 0) {
-//                 resultsData.innerHTML = data.map(candidate => `
-//                     <div class="candidate-card">
-//                         <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-//                         <h3>${candidate.name}</h3>
-//                         <p class="party">${candidate.party}</p>
-//                         <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
-//                     </div>
-//                 `).join('');
-//             } else {
-//                 resultsData.innerHTML = `<p>No results available at the moment.</p>`;
-//             }
-//         })
-//         .catch(error => console.error('Error fetching results:', error));
-// }
-
-// function fetchResults() {
-//     fetch('/api/results/top')
-//         .then(response => response.json())
-//         .then(data => {
-//             const resultsData = document.getElementById('resultsData');
-//             if (data.length > 0) {
-//                 resultsData.innerHTML = data.map(candidate => `
-//                     <div class="candidate-card" onclick="location.href='results.html'">
-//                         <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-//                         <h3>${candidate.name}</h3>
-//                         <p class="party">${candidate.party}</p>
-//                         <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
-//                     </div>
-//                 `).join('');
-//             } else {
-//                 resultsData.innerHTML = `<p>No results available at the moment.</p>`;
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Error fetching results:', error);
-//             resultsData.innerHTML = `<p>Failed to load results. Please try again later.</p>`;
-//         });
-// }
-function fetchResults() {
-    fetch('/api/results/top')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Top Candidates Data:', data); // Debugging
-            const resultsData = document.getElementById('resultsData');
-            if (data.length > 0) {
-                resultsData.innerHTML = data.map(candidate => `
-                    <div class="candidate-card" onclick="location.href='results.html'">
-                        <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-                        <h3>${candidate.name}</h3>
-                        <p class="party">${candidate.party}</p>
-                        <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
-                    </div>
-                `).join('');
-            } else {
-                resultsData.innerHTML = `<p>No results available at the moment.</p>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching results:', error); // Debugging
-            resultsData.innerHTML = `<p>Failed to load results. Please try again later.</p>`;
-        });
-}
 
 // Fetch election news
 fetch('/api/news')

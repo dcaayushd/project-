@@ -22,6 +22,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         if (response.ok) {
             localStorage.setItem('userId', result.user._id);
             localStorage.setItem('isRegistered', 'true');
+            localStorage.setItem('userFullName', result.user.fullName);
             window.location.href = 'index.html';
         } else {
             alert(result.message || 'Login failed');
