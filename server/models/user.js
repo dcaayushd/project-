@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema({
     citizenshipNumber: { type: String, required: true, unique: true },
     voterId: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    hasVoted: { type: Boolean, default: false }
+    hasVoted: { type: Boolean, default: false },
+    votedFor: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Candidate',
+        default: null
+    }
 });
 
 // Hash password before saving

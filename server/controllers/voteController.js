@@ -21,8 +21,9 @@ exports.vote = async (req, res) => {
         candidate.votes += 1; // Increment the vote count
         await candidate.save();
 
-        // Mark the user as having voted
+        // Mark the user as having voted and store the candidate ID
         user.hasVoted = true;
+        user.votedFor = candidateId; // Store the candidate ID
         await user.save();
 
         // Store the vote in the votes collection for auditing

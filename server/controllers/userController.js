@@ -70,7 +70,8 @@ exports.login = async (req, res) => {
             user: {
                 _id: user._id,
                 fullName: user.fullName,
-                voterId: user.voterId
+                voterId: user.voterId,
+                votedFor: user.votedFor 
             }
         });
     } catch (error) {
@@ -157,3 +158,21 @@ exports.retrieveVoterId = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving Voter ID', error: error.message });
     }
 };
+
+
+// exports.getUserById = async (req, res) => {
+//     try {
+//         const user = await User.findById(req.params.userId);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+//         res.status(200).json({
+//             _id: user._id,
+//             fullName: user.fullName,
+//             votedFor: user.votedFor
+//         });
+//     } catch (error) {
+//         console.error('Error fetching user:', error);
+//         res.status(500).json({ message: 'Error fetching user data', error: error.message });
+//     }
+// };

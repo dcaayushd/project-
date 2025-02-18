@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     localStorage.removeItem('userId');
                     localStorage.removeItem('isRegistered');
                     localStorage.removeItem('userFullName');
-                    window.location.href = 'login.html'; // Redirect to login page
+                    window.location.href = 'login.html'; 
+                    localStorage.removeItem('votedFor');
                 });
             }
         }
@@ -67,51 +68,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-function handleVote(candidateId) {
-    const isRegistered = localStorage.getItem('isRegistered') === 'true';
-    if (isRegistered) {
-        // Ask for confirmation before voting
-        const confirmation = confirm("के तपाईं यो उम्मेदवारलाई मत दिन निश्चित हुनुहुन्छ?");
-        if (confirmation) {
-            // Submit vote
-            fetch('/api/vote', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    userId: localStorage.getItem('userId'), 
-                    candidateId 
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                if (data.success) {
-                    // Optionally, redirect or refresh the page
-                    window.location.reload();
-                }
-            })
-            .catch(error => console.error('Error submitting vote:', error));
-        }
-    } else {
-        // Redirect to registration page
-        window.location.href = 'register.html';
-    }
-}
-
-
 //fetchResults
 function fetchResults() {
-    console.log('Attempting to fetch top results');
     fetch('/api/candidates/top')
         .then(response => {
-            console.log('Response status:', response.status);
+            // console.log('Response status:', response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log('Received results data:', data);
+            // console.log('Received results data:', data);
             const resultsData = document.getElementById('resultsData');
             
             if (!data || data.length === 0) {
@@ -136,7 +104,6 @@ function fetchResults() {
 }
 
 function fetchAllCandidateResults() {
-    console.log('Attempting to fetch all candidates');
     fetch('/api/candidates')
         .then(response => {
             console.log('Response status:', response.status);
@@ -146,7 +113,7 @@ function fetchAllCandidateResults() {
             return response.json();
         })
         .then(data => {
-            console.log('Received candidates data:', data);
+            // console.log('Received candidates data:', data);
             const resultsData = document.getElementById('resultsData');
             
             if (!data || data.length === 0) {
@@ -173,9 +140,8 @@ function fetchAllCandidateResults() {
         });
 }
 
-// Modify the existing DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('Current pathname:', window.location.pathname);
+    // console.log('Current pathname:', window.location.pathname);
     if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
         fetchResults();
     } else if (window.location.pathname.includes('results.html')) {
@@ -184,23 +150,117 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fetchCandidates() {
+    const userId = localStorage.getItem('userId');
+    const votedFor = localStorage.getItem('votedFor');
+    const currentLanguage = localStorage.getItem('language') || 'np';
+
+    // console.log('Current votedFor status:', votedFor); // Debug log
+
+    // If user is logged in but we don't have votedFor status, fetch it from server
+    if (userId && !votedFor) {
+        fetch(`/api/users/${userId}`)
+            .then(response => response.json())
+            .then(userData => {
+                if (userData.votedFor) {
+                    localStorage.setItem('votedFor', userData.votedFor);
+                }
+                fetchCandidatesList(userData.votedFor || null);
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                fetchCandidatesList(null);
+            });
+    } else {
+        fetchCandidatesList(votedFor);
+    }
+}
+
+function fetchCandidatesList(votedFor) {
+    const currentLanguage = localStorage.getItem('language') || 'np';
+    
     fetch('/api/candidates')
         .then(response => response.json())
         .then(data => {
             const candidateData = document.getElementById('candidateData');
-            candidateData.innerHTML = data.map(candidate => `
-                <div class="candidate-card">
-                    <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-                    <h3>${candidate.name}</h3>
-                    <p class="party">${candidate.party}</p>
-                    <p class="bio">${candidate.bio}</p>
-                    <button class="vote-button" onclick="handleVote('${candidate._id}')">Vote</button>
-                </div>
-            `).join('');
+            
+            if (!candidateData) {
+                console.error('candidateData element not found');
+                return;
+            }
+
+            // If user has voted for any candidate, all vote buttons should be disabled
+            const hasVoted = votedFor !== null;
+
+            candidateData.innerHTML = data.map(candidate => {
+                const isVoted = votedFor === candidate._id;
+                const buttonText = isVoted 
+                    ? (currentLanguage === 'np' ? 'मतदान गरियो' : 'Voted')
+                    : (currentLanguage === 'np' ? 'मतदान गर्नुहोस्' : 'Vote');
+
+                return `
+                    <div class="candidate-card">
+                        <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                        <h3>${candidate.name}</h3>
+                        <p class="party">${candidate.party}</p>
+                        <p class="bio">${candidate.bio}</p>
+                        <button 
+                            class="${isVoted ? 'voted-button' : 'vote-button'}"
+                            ${hasVoted ? 'disabled' : ''}
+                            onclick="${hasVoted ? '' : `handleVote('${candidate._id}')`}"
+                        >
+                            ${buttonText}
+                        </button>
+                    </div>
+                `;
+            }).join('');
         })
-        .catch(error => console.error('Error fetching candidates:', error));
+        .catch(error => {
+            console.error('Error fetching candidates:', error);
+            const candidateData = document.getElementById('candidateData');
+            if (candidateData) {
+                candidateData.innerHTML = '<p>Error loading candidates. Please try again later.</p>';
+            }
+        });
 }
 
+
+async function handleVote(candidateId) {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        alert('Please login to vote.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const currentLanguage = localStorage.getItem('language') || 'np';
+    const confirmation = currentLanguage === 'np' 
+        ? "के तपाईं यो उम्मेदवारलाई मत दिन निश्चित हुनुहुन्छ?"
+        : "Are you sure you want to vote for this candidate?";
+        
+    if (!confirm(confirmation)) return;
+
+    try {
+        const response = await fetch('/api/vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, candidateId })
+        });
+        
+        const result = await response.json();
+
+        if (result.success) {
+            localStorage.setItem('votedFor', candidateId);
+            alert(result.message);
+            // Refresh the candidate list to update all buttons
+            fetchCandidates();
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error submitting vote:', error);
+        alert('Error submitting vote. Please try again.');
+    }
+}
 
 // Fetch election news
 fetch('/api/news')
@@ -211,7 +271,7 @@ fetch('/api/news')
         return response.json();
     })
     .then(data => {
-        console.log('News Data:', data); // Log the fetched news data
+        // console.log('News Data:', data); // Log the fetched news data
         const newsData = document.getElementById('newsData');
         if (!data.news || data.news.length === 0) {
             newsData.innerHTML = `<p>No news available at the moment.</p>`;
@@ -226,7 +286,7 @@ fetch('/api/news')
         }
     })
     .catch(error => {
-        console.error('Error fetching news:', error); // Log the error
+        // console.error('Error fetching news:', error); // Log the error
         const newsData = document.getElementById('newsData');
         newsData.innerHTML = `<p>Failed to load news. Please try again later.</p>`;
     });
@@ -303,7 +363,9 @@ function changeLanguage(lang) {
     });
 
     localStorage.setItem('language', lang);
-    window.location.reload(); // Reload the page to apply the new language
+    // window.location.reload(); // Reload the page to apply the new language
+    updateLanguage();
+    fetchCandidates();
 }
 
 function updateLanguage() {    
@@ -323,6 +385,8 @@ function updateLanguage() {
             results: "नतिजा",
             news: "समाचार",
             contact: "सम्पर्क",
+            castVote:"मतदान गर्नुहोस्",
+            voted: "मतदान गरियो",
             ElectionNepal: "नेपाल निर्वाचन आयोग",
             ElectionBio: "स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी",
             HowToVote: "मतदान कसरी गर्ने?",
@@ -391,6 +455,8 @@ function updateLanguage() {
             resultsHeading: "Results",
             newsHeading: "News",
             contactHeading: "Contact",
+            castVote: "Vote",
+            voted: "Voted",
             login: "Login",
             loginNow: "Login",
             forgotPassword: "Forgot Password?",
@@ -443,6 +509,15 @@ function updateLanguage() {
             if (translations[language][key]) {
                 element.innerText = translations[language][key];
             }
+        });
+
+         // Update Vote button text
+        document.querySelectorAll('.vote-button').forEach(button => {
+            button.innerText = translations[language].castVote;
+        });
+
+        document.querySelectorAll('.voted-button').forEach(button => {
+            button.innerText = translations[language].voted;
         });
 
     // Update input placeholders
