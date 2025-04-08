@@ -7,6 +7,7 @@ const voteRoutes = require('./routes/voteRoutes');
 const electionRoutes = require('./routes/electionRoutes');
 const pollingRoutes = require('./routes/pollingRoutes');
 const newsRoutes = require('./routes/newsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/vote', voteRoutes);
 app.use('/api/elections', electionRoutes);
 app.use('/api/polling-stations', pollingRoutes);
 app.use('/api', newsRoutes);
+app.use('/api', adminRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })

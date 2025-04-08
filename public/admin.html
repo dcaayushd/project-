@@ -3,55 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>प्रशासन प्यानल</title>
+    <title>प्रशासन लगइन</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <img src="images/logo.png" alt="नेपाल निर्वाचन आयोग">
+<body class="admin-login-body">
+    <div class="admin-header">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="नेपाल निर्वाचन आयोग" class="logo">
+            <h1>नेपाल निर्वाचन आयोग</h1>
         </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">गृहपृष्ठ</a></li>
-                <li><a href="#manage-candidates">उम्मेदवार व्यवस्थापन</a></li>
-                <li><a href="#manage-elections">निर्वाचन व्यवस्थापन</a></li>
-                <li><a href="#manage-voters">मतदाता व्यवस्थापन</a></li>
-            </ul>
-        </nav>
-    </header>
+    </div>
 
-    <main>
-        <section id="manage-candidates" class="admin-section">
-            <h2>उम्मेदवार व्यवस्थापन</h2>
-            <form id="addCandidateForm">
-                <input type="text" id="candidateName" placeholder="उम्मेदवारको नाम" required>
-                <input type="text" id="candidateParty" placeholder="दल" required>
-                <input type="text" id="candidateBio" placeholder="जीवनी" required>
-                <input type="text" id="candidatePhoto" placeholder="फोटो URL" required>
-                <button type="submit">उम्मेदवार थप्नुहोस्</button>
+    <div class="admin-login-container">
+        <div class="login-box">
+            <h2>प्रशासन लगइन</h2>
+            <form id="adminLoginForm">
+                <div class="input-group">
+                    <label for="adminId">प्रशासन आईडी</label>
+                    <input type="text" id="adminId" name="adminId" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">पासवर्ड</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="error-message" id="loginError"></div>
+                <button type="submit" class="login-btn">लगइन</button>
             </form>
-        </section>
+        </div>
+    </div>
 
-        <section id="manage-elections" class="admin-section">
-            <h2>निर्वाचन व्यवस्थापन</h2>
-            <form id="addElectionForm">
-                <input type="text" id="electionName" placeholder="निर्वाचनको नाम" required>
-                <input type="date" id="electionDate" placeholder="मिति" required>
-                <input type="text" id="electionType" placeholder="प्रकार" required>
-                <button type="submit">निर्वाचन थप्नुहोस्</button>
-            </form>
-        </section>
-
-        <section id="manage-voters" class="admin-section">
-            <h2>मतदाता व्यवस्थापन</h2>
-            <div id="voterList"></div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 नेपाल निर्वाचन आयोग</p>
+    <footer class="admin-footer">
+        <p>&copy; २०२५ नेपाल निर्वाचन आयोग</p>
     </footer>
 
     <script src="js/admin.js"></script>
