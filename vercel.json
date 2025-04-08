@@ -7,7 +7,8 @@
       "config": {
         "nodeVersion": "18.x",
         "includeFiles": [
-          "node_modules/bcrypt/**/*.node"
+          "node_modules/bcrypt/**/*.node",
+          ".env"
         ]
       }
     },

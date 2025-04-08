@@ -38,7 +38,9 @@
 
 // Force correct binary version for bcrypt
 process.env.BCRYPT_JS = 'false';
-process.env.DEBUG = 'bcrypt';
+if (process.env.NODE_ENV === 'production') {
+    process.env.DEBUG = 'mongoose,bcrypt';
+  }
 
 const express = require('express');
 const mongoose = require('mongoose');
