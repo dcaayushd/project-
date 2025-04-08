@@ -5,8 +5,8 @@ const Candidate = require('../models/candidate');
 const Election = require('../models/election');
 const PollingStation = require('../models/pollingStation');
 const User = require('../models/user');
-// const bcrypt = require('bcrypt');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+// const bcrypt = require('bcryptjs');
 
 // Admin Login
 router.post('/login', async (req, res) => {
