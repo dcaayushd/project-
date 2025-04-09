@@ -57,7 +57,7 @@ const PORT = process.env.PORT || 3000;
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'https://your-render-app-name.onrender.com' // Replace with your actual Render URL
+    'https://election-app-fkj1.onrender.com' // Replace with your actual Render URL
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
