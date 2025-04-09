@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set API base URL based on environment
     const API_BASE = window.location.hostname.includes('render.com')
         ? 'https://election-backend-7pcm.onrender.com'
-        : 'http://localhost:10000';
+        : 'http://localhost:3000';
 
     // Check authentication status
     const isRegistered = localStorage.getItem('isRegistered') === 'true';
