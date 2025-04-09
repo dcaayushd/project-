@@ -550,243 +550,254 @@
 
 // document.addEventListener('DOMContentLoaded', updateLanguage);
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Set API base URL based on environment
-    const API_BASE = window.location.hostname.includes('render.com')
-        ? 'https://election-backend-7pcm.onrender.com'
-        : 'http://localhost:3000';
 
-    // Check authentication status
+const API_BASE_URL = window.location.origin;
+
+document.addEventListener('DOMContentLoaded', function () {
     const isRegistered = localStorage.getItem('isRegistered') === 'true';
     const userFullName = localStorage.getItem('userFullName');
 
     if (isRegistered && userFullName) {
-        updateUIForLoggedInUser(userFullName);
+        // Hide the register button
+        const registerButton = document.getElementById('registerButton');
+        if (registerButton) {
+            registerButton.style.display = 'none';
+        }
+
+        // Center the "How to Vote" button
+        const ctaButtons = document.querySelector('.cta-buttons');
+        if (ctaButtons) {
+            ctaButtons.style.justifyContent = 'center';
+        }
+
+        // Display the logged-in user's name
+        const loggedInUser = document.getElementById('loggedInUser');
+        const userFullNameElement = document.getElementById('userFullName');
+        if (loggedInUser && userFullNameElement) {
+            loggedInUser.style.display = 'block';
+            userFullNameElement.innerText = userFullName;
+
+            // Toggle user options visibility when the user's name is clicked
+            document.getElementById('userFullName').addEventListener('click', function (event) {
+                event.stopPropagation(); // Prevent event from propagating to document
+                const userOptions = document.querySelector('.user-options');
+                userOptions.style.display = userOptions.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Hide dropdown when clicking anywhere else on the page
+            document.addEventListener('click', function () {
+                const userOptions = document.querySelector('.user-options');
+                if (userOptions.style.display === 'block') {
+                    userOptions.style.display = 'none';
+                }
+            });
+            // Logout functionality
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    localStorage.removeItem('userId');
+                    localStorage.removeItem('isRegistered');
+                    localStorage.removeItem('userFullName');
+                    window.location.href = 'login.html'; 
+                    localStorage.removeItem('votedFor');
+                });
+            }
+        }
     }
 
-    // Initialize page content
-    initializePageContent(API_BASE);
 
-    // Initialize language
+      // Dynamic results fetching based on current page
+      if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+        fetchResults();
+    } else if (window.location.pathname.includes('results.html')) {
+        fetchAllCandidateResults();
+    }
+
+    fetchCandidates();
+    fetchPollingCenters();
+    fetchUpcomingElections();
+    fetchNews();
+    setupContactForm();
     updateLanguage();
+
 });
 
-function updateUIForLoggedInUser(fullName) {
-    const registerButton = document.getElementById('registerButton');
-    if (registerButton) registerButton.style.display = 'none';
-
-    const ctaButtons = document.querySelector('.cta-buttons');
-    if (ctaButtons) ctaButtons.style.justifyContent = 'center';
-
-    const loggedInUser = document.getElementById('loggedInUser');
-    const userFullNameElement = document.getElementById('userFullName');
-
-    if (loggedInUser && userFullNameElement) {
-        loggedInUser.style.display = 'block';
-        userFullNameElement.textContent = fullName;
-
-        // Setup user dropdown
-        setupUserDropdown();
-
-        // Setup logout
-        setupLogout();
-    }
-}
-
-function setupUserDropdown() {
-    const userFullName = document.getElementById('userFullName');
-    if (userFullName) {
-        userFullName.addEventListener('click', function (e) {
-            e.stopPropagation();
-            const userOptions = document.querySelector('.user-options');
-            if (userOptions) {
-                userOptions.style.display = userOptions.style.display === 'block' ? 'none' : 'block';
+//fetchResults
+function fetchResults() {
+    // fetch('/api/candidates/top')
+    fetch(`${API_BASE_URL}/api/candidates/top`)
+        .then(response => {
+            // console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        });
-    }
-
-    document.addEventListener('click', () => {
-        const userOptions = document.querySelector('.user-options');
-        if (userOptions && userOptions.style.display === 'block') {
-            userOptions.style.display = 'none';
-        }
-    });
-}
-
-function setupLogout() {
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function (e) {
-            e.preventDefault();
-            ['userId', 'isRegistered', 'userFullName', 'votedFor'].forEach(key => {
-                localStorage.removeItem(key);
-            });
-            window.location.href = 'login.html';
-        });
-    }
-}
-
-function initializePageContent(API_BASE) {
-    // Load appropriate content based on page
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-        fetchResults(API_BASE);
-        fetchCandidates(API_BASE);
-        fetchPollingCenters(API_BASE);
-        fetchUpcomingElections(API_BASE);
-        fetchNews(API_BASE);
-    } else if (window.location.pathname.includes('results.html')) {
-        fetchAllCandidateResults(API_BASE);
-    }
-
-    setupContactForm(API_BASE);
-}
-
-// API Fetch Functions with error handling
-async function fetchData(endpoint, API_BASE) {
-    try {
-        const response = await fetch(`${API_BASE}/api/${endpoint}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error);
-        throw error;
-    }
-}
-
-function fetchResults(API_BASE) {
-    fetchData('candidates/top', API_BASE)
+            return response.json();
+        })
         .then(data => {
+            // console.log('Received results data:', data);
             const resultsData = document.getElementById('resultsData');
-            if (resultsData) {
-                resultsData.innerHTML = data?.length ? data.map(candidate => `
-                    <div class="candidate-card" onclick="location.href='results.html'">
-                        <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-                        <h3>${candidate.name}</h3>
-                        <p class="party">${candidate.party}</p>
-                        <p class="votes">${translate('votes')}: <strong>${candidate.votes}</strong></p>
-                    </div>
-                `).join('') : `<p>${translate('noResults')}</p>`;
+
+            if (!data || data.length === 0) {
+                resultsData.innerHTML = `<p>No results available at the moment.</p>`;
+                return;
             }
+
+            resultsData.innerHTML = data.map(candidate => `
+                <div class="candidate-card" onclick="location.href='results.html'">
+                    <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                    <h3>${candidate.name}</h3>
+                    <p class="party">${candidate.party}</p>
+                    <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
+                </div>
+            `).join('');
         })
         .catch(error => {
+            console.error('Error fetching results:', error);
             const resultsData = document.getElementById('resultsData');
-            if (resultsData) {
-                resultsData.innerHTML = `<p>${translate('failedToLoad')} ${translate('results')}. ${translate('error')}: ${error.message}</p>`;
-            }
+            resultsData.innerHTML = `<p>Failed to load results. Error: ${error.message}</p>`;
         });
 }
 
-function fetchAllCandidateResults(API_BASE) {
-    fetchData('candidates', API_BASE)
-        .then(data => {
-            const resultsData = document.getElementById('resultsData');
-            if (resultsData) {
-                if (!data || data.length === 0) {
-                    resultsData.innerHTML = `<p>${translate('noResultsAvailable')}</p>`;
-                    return;
-                }
 
-                // Sort candidates by votes in descending order
-                const sortedCandidates = data.sort((a, b) => b.votes - a.votes);
-
-                resultsData.innerHTML = sortedCandidates.map(candidate => `
-                    <div class="candidate-card full-results">
-                        <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-                        <h3>${candidate.name}</h3>
-                        <p class="party">${candidate.party}</p>
-                        <p class="votes">${translate('votes')}: <strong>${candidate.votes}</strong></p>
-                    </div>
-                `).join('');
+function fetchAllCandidateResults() {
+    fetch('/api/candidates')
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            return response.json();
+        })
+        .then(data => {
+            // console.log('Received candidates data:', data);
+            const resultsData = document.getElementById('resultsData');
+
+            if (!data || data.length === 0) {
+                resultsData.innerHTML = `<p>No results available at the moment.</p>`;
+                return;
+            }
+
+            // Sort candidates by votes in descending order
+            const sortedCandidates = data.sort((a, b) => b.votes - a.votes);
+
+            resultsData.innerHTML = sortedCandidates.map(candidate => `
+                <div class="candidate-card full-results">
+                    <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                    <h3>${candidate.name}</h3>
+                    <p class="party">${candidate.party}</p>
+                    <p class="votes">Votes: <strong>${candidate.votes}</strong></p>
+                </div>
+            `).join('');
         })
         .catch(error => {
             console.error('Error fetching all candidate results:', error);
             const resultsData = document.getElementById('resultsData');
-            if (resultsData) {
-                resultsData.innerHTML = `<p>${translate('failedToLoad')} ${translate('results')}. ${translate('error')}: ${error.message}</p>`;
-            }
+            resultsData.innerHTML = `<p>Failed to load results. Error: ${error.message}</p>`;
         });
 }
 
-function fetchCandidates(API_BASE) {
+document.addEventListener('DOMContentLoaded', function () {
+    // console.log('Current pathname:', window.location.pathname);
+    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+        fetchResults();
+    } else if (window.location.pathname.includes('results.html')) {
+        fetchAllCandidateResults();
+    }
+});
+
+function fetchCandidates() {
     const userId = localStorage.getItem('userId');
     const votedFor = localStorage.getItem('votedFor');
     const currentLanguage = localStorage.getItem('language') || 'np';
 
+    // console.log('Current votedFor status:', votedFor); // Debug log
+
+    // If user is logged in but we don't have votedFor status, fetch it from server
     if (userId && !votedFor) {
-        fetchData(`users/${userId}`, API_BASE)
+        fetch(`/api/users/${userId}`)
+            .then(response => response.json())
             .then(userData => {
                 if (userData.votedFor) {
                     localStorage.setItem('votedFor', userData.votedFor);
                 }
-                fetchCandidatesList(userData.votedFor || null, API_BASE, currentLanguage);
+                fetchCandidatesList(userData.votedFor || null);
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
-                fetchCandidatesList(null, API_BASE, currentLanguage);
+                fetchCandidatesList(null);
             });
     } else {
-        fetchCandidatesList(votedFor, API_BASE, currentLanguage);
+        fetchCandidatesList(votedFor);
     }
 }
 
-function fetchCandidatesList(votedFor, API_BASE, currentLanguage) {
-    fetchData('candidates', API_BASE)
+function fetchCandidatesList(votedFor) {
+    const currentLanguage = localStorage.getItem('language') || 'np';
+
+    fetch('/api/candidates')
+        .then(response => response.json())
         .then(data => {
             const candidateData = document.getElementById('candidateData');
-            if (candidateData) {
-                const hasVoted = votedFor !== null;
 
-                candidateData.innerHTML = data.map(candidate => {
-                    const isVoted = votedFor === candidate._id;
-                    const buttonText = isVoted
-                        ? (currentLanguage === 'np' ? 'मतदान गरियो' : 'Voted')
-                        : (currentLanguage === 'np' ? 'मतदान गर्नुहोस्' : 'Vote');
-
-                    return `
-                        <div class="candidate-card">
-                            <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
-                            <h3>${candidate.name}</h3>
-                            <p class="party">${candidate.party}</p>
-                            <p class="bio">${candidate.bio}</p>
-                            <button 
-                                class="${isVoted ? 'voted-button' : 'vote-button'}"
-                                ${hasVoted ? 'disabled' : ''}
-                                onclick="${hasVoted ? '' : `handleVote('${candidate._id}', '${API_BASE}')`}"
-                            >
-                                ${buttonText}
-                            </button>
-                        </div>
-                    `;
-                }).join('');
+            if (!candidateData) {
+                console.error('candidateData element not found');
+                return;
             }
+
+            // If user has voted for any candidate, all vote buttons should be disabled
+            const hasVoted = votedFor !== null;
+
+            candidateData.innerHTML = data.map(candidate => {
+                const isVoted = votedFor === candidate._id;
+                const buttonText = isVoted 
+                    ? (currentLanguage === 'np' ? 'मतदान गरियो' : 'Voted')
+                    : (currentLanguage === 'np' ? 'मतदान गर्नुहोस्' : 'Vote');
+
+                return `
+                    <div class="candidate-card">
+                        <img src="${candidate.photo}" alt="${candidate.name}" class="candidate-photo" />
+                        <h3>${candidate.name}</h3>
+                        <p class="party">${candidate.party}</p>
+                        <p class="bio">${candidate.bio}</p>
+                        <button 
+                            class="${isVoted ? 'voted-button' : 'vote-button'}"
+                            ${hasVoted ? 'disabled' : ''}
+                            onclick="${hasVoted ? '' : `handleVote('${candidate._id}')`}"
+                        >
+                            ${buttonText}
+                        </button>
+                    </div>
+                `;
+            }).join('');
         })
         .catch(error => {
             console.error('Error fetching candidates:', error);
             const candidateData = document.getElementById('candidateData');
             if (candidateData) {
-                candidateData.innerHTML = `<p>${translate('errorLoading')} ${translate('candidates')}. ${translate('pleaseTryAgain')}</p>`;
+                candidateData.innerHTML = '<p>Error loading candidates. Please try again later.</p>';
             }
         });
 }
 
-async function handleVote(candidateId, API_BASE) {
+
+async function handleVote(candidateId) {
     const userId = localStorage.getItem('userId');
     if (!userId) {
-        alert(translate('loginToVote'));
+        alert('Please login to vote.');
         window.location.href = 'login.html';
         return;
     }
 
     const currentLanguage = localStorage.getItem('language') || 'np';
-    const confirmation = currentLanguage === 'np'
+    const confirmation = currentLanguage === 'np' 
         ? "के तपाईं यो उम्मेदवारलाई मत दिन निश्चित हुनुहुन्छ?"
         : "Are you sure you want to vote for this candidate?";
 
     if (!confirm(confirmation)) return;
 
     try {
-        const response = await fetch(`${API_BASE}/api/vote`, {
+        const response = await fetch('/api/vote', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, candidateId })
@@ -797,115 +808,108 @@ async function handleVote(candidateId, API_BASE) {
         if (result.success) {
             localStorage.setItem('votedFor', candidateId);
             alert(result.message);
-            fetchCandidates(API_BASE);
+            // Refresh the candidate list to update all buttons
+            fetchCandidates();
         } else {
             alert(result.message);
         }
     } catch (error) {
         console.error('Error submitting vote:', error);
-        alert(translate('voteError'));
+        alert('Error submitting vote. Please try again.');
     }
 }
 
-function fetchNews(API_BASE) {
-    fetchData('news', API_BASE)
-        .then(data => {
-            const newsData = document.getElementById('newsData');
-            if (newsData) {
-                newsData.innerHTML = data.news?.length ? data.news.map(article => `
-                    <div class="news-item">
-                        <h3>${article.title}</h3>
-                        <p>${article.description}</p>
-                        <a href="${article.link}" target="_blank">${translate('readMore')}</a>
-                    </div>
-                `).join('') : `<p>${translate('noNewsAvailable')}</p>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching news:', error);
-            const newsData = document.getElementById('newsData');
-            if (newsData) {
-                newsData.innerHTML = `<p>${translate('failedToLoad')} ${translate('news')}. ${translate('pleaseTryAgain')}</p>`;
-            }
-        });
-}
+// Fetch election news
+fetch('/api/news')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // console.log('News Data:', data); // Log the fetched news data
+        const newsData = document.getElementById('newsData');
+        if (!data.news || data.news.length === 0) {
+            newsData.innerHTML = `<p>No news available at the moment.</p>`;
+        } else {
+            newsData.innerHTML = data.news.map(article => `
+                <div class="news-item">
+                    <h3>${article.title}</h3>
+                    <p>${article.description}</p>
+                    <a href="${article.link}" target="_blank">Read more</a>
+                </div>
+            `).join('');
+        }
+    })
+    .catch(error => {
+        // console.error('Error fetching news:', error); // Log the error
+        const newsData = document.getElementById('newsData');
+        newsData.innerHTML = `<p>Failed to load news. Please try again later.</p>`;
+    });
 
-function setupContactForm(API_BASE) {
+function setupContactForm() {
     const form = document.getElementById('contactForm');
-    if (form) {
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-
-            try {
-                const response = await fetch(`${API_BASE}/api/contact`, {
-                    method: 'POST',
-                    body: JSON.stringify(Object.fromEntries(formData)),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    alert(translate('messageSent'));
-                    form.reset();
-                } else {
-                    throw new Error(translate('sendFailed'));
-                }
-            } catch (error) {
-                console.error('Contact form error:', error);
-                alert(translate('sendError'));
-            }
-        });
-    }
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        fetch('/api/contact', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => alert('सन्देश पठाइयो!'))
+            .catch(error => console.error('Error submitting form:', error));
+    });
 }
 
-function fetchUpcomingElections(API_BASE) {
-    fetchData('elections', API_BASE)
+function fetchUpcomingElections() {
+    fetch('/api/elections')
+        .then(response => response.json())
         .then(data => {
             const upcomingElectionsData = document.getElementById('upcomingElectionsData');
-            if (upcomingElectionsData) {
-                upcomingElectionsData.innerHTML = data?.length ? data.map(election => `
+            if (data.length > 0) {
+                upcomingElectionsData.innerHTML = data.map(election => `
                     <div class="election-card">
                         <h3>${election.name}</h3>
-                        <p>${translate('date')}: ${new Date(election.date).toLocaleDateString()}</p>
-                        <p>${translate('type')}: ${election.type}</p>
-                        <p>${translate('description')}: ${election.description}</p>
+                        <p>Date: ${new Date(election.date).toLocaleDateString()}</p>
+                        <p>Type: ${election.type}</p>
+                        <p>Description: ${election.description}</p>
                     </div>
-                `).join('') : `<p>${translate('noUpcomingElections')}</p>`;
+                `).join('');
+            } else {
+                upcomingElectionsData.innerHTML = `<p>No upcoming elections available at the moment.</p>`;
             }
         })
         .catch(error => {
             console.error('Error fetching upcoming elections:', error);
-            const upcomingElectionsData = document.getElementById('upcomingElectionsData');
-            if (upcomingElectionsData) {
-                upcomingElectionsData.innerHTML = `<p>${translate('failedToLoad')} ${translate('upcomingElections')}. ${translate('pleaseTryAgain')}</p>`;
-            }
+            upcomingElectionsData.innerHTML = `<p>Failed to load upcoming elections. Please try again later.</p>`;
         });
 }
-
-function fetchPollingCenters(API_BASE) {
-    fetchData('polling-stations', API_BASE)
+function fetchPollingCenters() {
+    fetch('/api/polling-stations')
+        .then(response => response.json())
         .then(data => {
             const pollingData = document.getElementById('pollingData');
-            if (pollingData) {
-                pollingData.innerHTML = data?.length ? data.map(station => `
+            if (data.length > 0) {
+                pollingData.innerHTML = data.map(station => `
                     <div class="polling-card">
                         <h3>${station.name}</h3>
-                        <p>${translate('address')}: ${station.address}</p>
-                        <p>${translate('district')}: ${station.district}</p>
-                        <p>${translate('openingHours')}: ${station.openingHours}</p>
+                        <p>Address: ${station.address}</p>
+                        <p>District: ${station.district}</p>
+                        <p>Opening Hours: ${station.openingHours}</p>
                     </div>
-                `).join('') : `<p>${translate('noPollingCenters')}</p>`;
+                `).join('');
+            } else {
+                pollingData.innerHTML = `<p>No polling centers available at the moment.</p>`;
             }
         })
         .catch(error => {
             console.error('Error fetching polling centers:', error);
-            const pollingData = document.getElementById('pollingData');
-            if (pollingData) {
-                pollingData.innerHTML = `<p>${translate('failedToLoad')} ${translate('pollingCenters')}. ${translate('pleaseTryAgain')}</p>`;
-            }
+            pollingData.innerHTML = `<p>Failed to load polling centers. Please try again later.</p>`;
         });
 }
-
 function changeLanguage(lang) {
     const buttons = document.querySelectorAll('.language-switcher button');
     buttons.forEach(btn => {
@@ -916,45 +920,20 @@ function changeLanguage(lang) {
     });
 
     localStorage.setItem('language', lang);
+    // window.location.reload(); // Reload the page to apply the new language
     updateLanguage();
-
-    // Refresh data that might have language-specific content
-    const API_BASE = window.location.hostname.includes('render.com')
-        ? 'https://election-backend-7pcm.onrender.com'
-        : 'http://localhost:10000';
-
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-        fetchCandidates(API_BASE);
-    }
+    fetchCandidates();
 }
 
-function updateLanguage() {
+function updateLanguage() {    
     const language = localStorage.getItem('language') || 'np';
-
-    // Update all translatable elements
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
-        const translation = translate(key);
-        if (translation) {
-            if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-                element.placeholder = translation;
-            } else {
-                element.textContent = translation;
-            }
+    const buttons = document.querySelectorAll('.language-switcher button');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick').includes(language)) {
+            btn.classList.add('active');
         }
     });
-
-    // Update buttons separately if needed
-    document.querySelectorAll('.vote-button').forEach(button => {
-        button.textContent = translate('castVote');
-    });
-
-    document.querySelectorAll('.voted-button').forEach(button => {
-        button.textContent = translate('voted');
-    });
-}
-
-function translate(key) {
     const translations = {
         np: {
             home: "गृहपृष्ठ",
@@ -963,7 +942,7 @@ function translate(key) {
             results: "नतिजा",
             news: "समाचार",
             contact: "सम्पर्क",
-            castVote: "मतदान गर्नुहोस्",
+            castVote:"मतदान गर्नुहोस्",
             voted: "मतदान गरियो",
             ElectionNepal: "नेपाल निर्वाचन आयोग",
             ElectionBio: "स्वतन्त्र, निष्पक्ष र पारदर्शी निर्वाचनको ग्यारेन्टी",
@@ -996,7 +975,7 @@ function translate(key) {
             copyToClipboard: "क्लिपबोर्डमा कपी गर्नुहोस्",
             copied: "कपी गरियो!",
             pleaseWait: "कृपया पर्खनुहोस्...",
-            upcomingElections: "आगामी निर्वाचनहरू",
+            upcomingElections:"आगामी निर्वाचनहरू",
             loggedInUser: "लगइन",
 
             //  Translations for howToVote.html
@@ -1060,6 +1039,7 @@ function translate(key) {
             upcomingElections: "Upcoming Elections",
             loggedInUser: "Logged in as:",
 
+
             // Translations for howToVote.html
             VotingInstructions: "The voting process in Nepal is simple and transparent. Follow the steps below:",
             VotingInPerson: "Voting in Person at Polling Center",
@@ -1120,16 +1100,8 @@ function translate(key) {
             element.placeholder = placeholders[id];
         }
     });
-// }
+}
 
-        // }
-    };
-
-    const language = localStorage.getItem('language') || 'np';
-    return translations[language]?.[key] || key;
-// }
-
-
-// // Call updateLanguage() when the page loads
+// Call updateLanguage() when the page loads
 
 document.addEventListener('DOMContentLoaded', updateLanguage);

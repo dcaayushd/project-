@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Fetch candidates
-    const response = await fetch('/api/candidates');
+    // const response = await fetch('/api/candidates');
+    const response = await fetch(`${window.location.origin}/api/candidates`);
     const candidates = await response.json();
     const candidateList = document.getElementById('candidateList');
     candidateList.innerHTML = candidates.map(candidate => `
@@ -22,7 +23,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function voteForCandidate(candidateId) {
     const userId = localStorage.getItem('userId');
     try {
-        const response = await fetch('/api/vote', {
+        // const response = await fetch('/api/vote', {
+        const response = await fetch(`${window.location.origin}/api/vote`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, candidateId })
@@ -32,5 +34,6 @@ async function voteForCandidate(candidateId) {
         window.location.href = 'index.html'; // Redirect to homepage
     } catch (error) {
         console.error('Error:', error);
+        alert('Error submitting vote. Please try again later.');
     }
 }
