@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: election-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server/server.js
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://aayushdc1234:0mR1UIlmz6AmnnMK@cluster0.h5dhdsm.mongodb.net/election?retryWrites=true&w=majority
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: NEWS_API_KEY
+        value: f73af6db53e340d2a1a58a028376dd5f
+      - key: FRONTEND_URL
+        value: https://election-frontend-r5bu.onrender.com
+
+  - type: static
+    name: election-frontend
+    buildCommand: echo "No build needed for static site"
+    publishDir: public
+    envVars:
+      - key: API_BASE_URL
+        value: https://election-backend-7pcm.onrender.com
